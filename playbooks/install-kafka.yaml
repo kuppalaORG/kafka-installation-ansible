@@ -1,0 +1,7 @@
+- name: Install and configure Kafka
+  hosts: all
+  become: yes
+  roles:
+    - java
+    - kafka
+    - zookeeper

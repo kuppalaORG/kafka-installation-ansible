@@ -1,0 +1,30 @@
+# Unique broker ID
+broker.id={{ groups['all'].index(inventory_hostname) + 1 }}
+
+# Where Kafka logs go
+log.dirs=/tmp/kafka-logs
+
+# Listeners for clients
+listeners=PLAINTEXT://0.0.0.0:9092
+
+# Zookeeper connection string
+zookeeper.connect={% for host in groups['all'] %}{{ hostvars[host]['inventory_hostname'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}
+
+# Replication and ISR
+offsets.topic.replication.factor=3
+transaction.state.log.replication.factor=3
+transaction.state.log.min.isr=2
+default.replication.factor=3
+min.insync.replicas=2
+
+# Number of partitions per topic
+num.partitions=3
+
+# Networking
+num.network.threads=3
+num.io.threads=8
+
+# Log retention
+log.retention.hours=168
+log.segment.bytes=1073741824
+log.retention.check.interval.ms=300000

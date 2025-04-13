@@ -1,0 +1,15 @@
+---
+# tasks file for roles/zookeeper
+- name: Create ZooKeeper directory
+  file:
+    path: /opt/zookeeper
+    state: directory
+    mode: '0755'
+
+- name: Copy zookeeper.properties
+  template:
+    src: zookeeper.properties.j2
+    dest: /opt/kafka/config/zookeeper.properties
+
+- name: Start ZooKeeper
+  shell: "{{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties"

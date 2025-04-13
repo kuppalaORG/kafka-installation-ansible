@@ -1,0 +1,24 @@
+- name: Download Kafka
+  get_url:
+    url: https://downloads.apache.org/kafka/3.6.1/kafka_2.13-3.6.1.tgz
+    dest: /tmp/kafka.tgz
+
+- name: Extract Kafka
+  unarchive:
+    src: /tmp/kafka.tgz
+    dest: /opt/
+    remote_src: yes
+
+- name: Symlink for kafka path
+  file:
+    src: /opt/kafka_2.13-3.6.1
+    dest: /opt/kafka
+    state: link
+
+- name: Copy server.properties template
+  template:
+    src: server.properties.j2
+    dest: /opt/kafka/config/server.properties
+
+- name: Start Kafka broker
+  shell: "/opt/kafka/bin/kafka-server-start.sh -daemon /opt/kafka/config/server.properties"
