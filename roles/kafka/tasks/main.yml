@@ -1,6 +1,6 @@
 - name: Download Kafka
   get_url:
-    url: https://downloads.apache.org/kafka/3.6.1/kafka_2.13-3.6.1.tgz
+    url: https://archive.apache.org/dist/kafka/3.6.1/kafka_2.13-3.6.1.tgz
     dest: /tmp/kafka.tgz
 
 - name: Extract Kafka
