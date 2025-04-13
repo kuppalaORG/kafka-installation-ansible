@@ -6,6 +6,7 @@ log.dirs=/tmp/kafka-logs
 
 # Listeners for clients
 listeners=PLAINTEXT://0.0.0.0:9092
+advertised.listeners=PLAINTEXT://{{ ansible_host }}:9092
 
 # Zookeeper connection string
 zookeeper.connect={% for host in groups['all'] %}{{ hostvars[host]['inventory_hostname'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}
