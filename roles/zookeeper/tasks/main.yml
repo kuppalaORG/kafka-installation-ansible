@@ -1,5 +1,3 @@
----
-# tasks file for roles/zookeeper
 - name: Create ZooKeeper directory
   file:
     path: /opt/zookeeper
@@ -10,6 +8,17 @@
   template:
     src: zookeeper.properties.j2
     dest: /opt/kafka/config/zookeeper.properties
+
+- name: Create ZooKeeper dataDir (usually needed for `myid`)
+  file:
+    path: /tmp/zookeeper
+    state: directory
+    mode: '0755'
+
+- name: Set Zookeeper myid
+  copy:
+    content: "{{ inventory_hostname | regex_replace('.*-(\\d+)\\..*', '\\1') }}"
+    dest: /tmp/zookeeper/myid
 
 - name: Start ZooKeeper
   shell: "{{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties"
