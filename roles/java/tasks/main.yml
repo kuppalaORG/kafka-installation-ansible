@@ -1,6 +1,26 @@
 ---
-# tasks file for roles/java
-- name: Install Java (Amazon Linux/Ubuntu)
-  package:
-    name: java-11-openjdk
-    state: present
+- name: Install Amazon Corretto Java 11 with GPG key
+  block:
+    - name: Download GPG key for Corretto 11
+      rpm_key:
+        key: https://yum.corretto.aws/corretto.key
+        state: present
+
+    - name: Download Corretto 11 RPM
+      get_url:
+        url: https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.rpm
+        dest: /tmp/amazon-corretto-11.rpm
+
+    - name: Install Corretto 11 RPM
+      yum:
+        name: /tmp/amazon-corretto-11.rpm
+        state: present
+
+    - name: Verify Java installation
+      command: java -version
+      register: java_version_output
+      changed_when: false
+
+    - name: Show Java version
+      debug:
+        var: java_version_output.stdout_lines
