@@ -1,7 +1,13 @@
 - name: Install and configure Kafka
   hosts: all
   become: yes
+
   roles:
     - java
     - kafka
     - zookeeper
+
+  tasks:
+    - name: Print inventory_hostname
+      debug:
+        var: inventory_hostname
