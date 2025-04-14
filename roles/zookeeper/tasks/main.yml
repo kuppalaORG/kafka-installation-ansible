@@ -22,3 +22,4 @@
 
 - name: Start ZooKeeper
   shell: "{{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties"
+
