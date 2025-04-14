@@ -4,7 +4,6 @@ clientPort=2181
 initLimit=5
 syncLimit=2
 
-# Zookeeper Quorum Servers
 {% for host in groups['all'] %}
-server.{{ loop.index }}={{ hostvars[host]['inventory_hostname'] }}:2888:3888
+server.{{ hostvars[host].broker_id }}={{ hostvars[host].private_ip }}:2888:3888
 {% endfor %}
