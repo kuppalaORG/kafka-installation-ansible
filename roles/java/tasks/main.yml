@@ -1,12 +1,17 @@
 ---
-- name: Install Amazon Corretto Java 11
+- name: Install Amazon Corretto Java 11 with GPG key
   block:
-    - name: Add Amazon Corretto 11 YUM repo
+    - name: Download GPG key for Corretto 11
+      rpm_key:
+        key: https://yum.corretto.aws/corretto.key
+        state: present
+
+    - name: Download Corretto 11 RPM
       get_url:
         url: https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.rpm
         dest: /tmp/amazon-corretto-11.rpm
 
-    - name: Install Amazon Corretto 11 from RPM
+    - name: Install Corretto 11 RPM
       yum:
         name: /tmp/amazon-corretto-11.rpm
         state: present
@@ -16,6 +21,6 @@
       register: java_version_output
       changed_when: false
 
-    - name: Print Java version
+    - name: Show Java version
       debug:
         var: java_version_output.stdout_lines
