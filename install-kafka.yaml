@@ -6,7 +6,7 @@
     - java
     - kafka
     - zookeeper
-
+    - dashboard
   tasks:
     - name: Print inventory_hostname
       debug:
