@@ -44,6 +44,20 @@
     group: ec2-user
     mode: '0644'
 
+- name: Debug private IP
+  debug:
+    msg: "Private IP for {{ inventory_hostname }} is {{ hostvars[inventory_hostname].private_ip }}"
+
+
+- name: Wait for ZooKeeper to be up (port 2181)
+  wait_for:
+    host: "{{ hostvars[inventory_hostname].private_ip }}"
+    port: 2181
+    delay: 5
+    timeout: 60
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['all'] }}"
+
 - name: Start Kafka broker as ec2-user
   become: true
   become_user: ec2-user
