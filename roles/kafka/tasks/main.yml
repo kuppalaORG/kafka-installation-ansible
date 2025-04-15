@@ -53,10 +53,21 @@
   wait_for:
     host: "{{ hostvars[inventory_hostname].private_ip }}"
     port: 2181
+    state: started
     delay: 5
     timeout: 60
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['all'] }}"
+
+- name: Wait for ZooKeeper peers to be up
+  wait_for:
+    host: "{{ hostvars[item].private_ip }}"
+    port: 2181
+    state: started
+    timeout: 60
+  loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
+  when: hostvars[item].private_ip is defined
+  delegate_to: localhost
+
+
 
 - name: Start Kafka broker as ec2-user
   become: true
