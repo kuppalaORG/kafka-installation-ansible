@@ -69,7 +69,7 @@
     timeout: 60
   loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
   when: hostvars[item].private_ip is defined
-  delegate_to: localhost
+  delegate_to: "{{ inventory_hostname }}"
   become: false
 
 - name: Configure and start Kafka using systemd
