@@ -1,0 +1,40 @@
+- name: Create dashboard directory
+  file:
+    path: /opt/dashboard
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
+- name: Copy producer script
+  copy:
+    src: producer.py
+    dest: /opt/dashboard/producer.py
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
+- name: Copy consumer script
+  copy:
+    src: consumer_chart.py
+    dest: /opt/dashboard/consumer_chart.py
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
+- name: Ensure required Python packages are installed
+  become: yes
+  pip:
+    name:
+      - kafka-python
+      - requests
+      - matplotlib
+    executable: pip3
+
+# Optional: start producer in background
+- name: Start Kafka producer in background (optional)
+  become: true
+  become_user: ec2-user
+  shell: "nohup python3 /opt/dashboard/producer.py > /opt/dashboard/producer.log 2>&1 &"
+  args:
+    executable: /bin/bash
