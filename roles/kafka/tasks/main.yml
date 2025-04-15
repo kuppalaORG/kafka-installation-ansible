@@ -34,7 +34,7 @@
     recurse: yes
   loop:
     - /tmp/kafka-logs
-    - /tmp/kraft-combined-logs  # optional if kraft used
+    - /tmp/kraft-combined-logs
 
 - name: Copy server.properties
   template:
@@ -48,8 +48,12 @@
   debug:
     msg: "Private IP for {{ inventory_hostname }} is {{ hostvars[inventory_hostname].private_ip }}"
 
+- name: Fail if private_ip is not defined
+  fail:
+    msg: "Private IP not found for {{ inventory_hostname }}"
+  when: hostvars[inventory_hostname].private_ip is not defined
 
-- name: Wait for ZooKeeper to be up (port 2181)
+- name: Wait for ZooKeeper to be up (self)
   wait_for:
     host: "{{ hostvars[inventory_hostname].private_ip }}"
     port: 2181
@@ -67,11 +71,14 @@
   when: hostvars[item].private_ip is defined
   delegate_to: localhost
 
+- name: Configure and start Kafka using systemd
+  include_tasks: systemd.yml
 
 
-- name: Start Kafka broker as ec2-user
-  become: true
-  become_user: ec2-user
-  shell: "{{ kafka_home }}/bin/kafka-server-start.sh -daemon {{ kafka_home }}/config/server.properties"
-  args:
-    executable: /bin/bash
+- name: Wait for Kafka broker to be up
+  wait_for:
+    host: "{{ hostvars[inventory_hostname].private_ip }}"
+    port: 9092
+    state: started
+    delay: 5
+    timeout: 90

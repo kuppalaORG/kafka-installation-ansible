@@ -40,9 +40,5 @@
     group: ec2-user
     mode: '0644'
 
-- name: Start ZooKeeper as ec2-user
-  become: true
-  become_user: ec2-user
-  shell: "{{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties"
-  args:
-    executable: /bin/bash
+- name: Configure and start ZooKeeper using systemd
+  include_tasks: systemd.yml

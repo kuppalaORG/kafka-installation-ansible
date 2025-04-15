@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache ZooKeeper Server
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+ExecStart=/opt/kafka/bin/zookeeper-server-start.sh /opt/kafka/config/zookeeper.properties
+Restart=on-abnormal
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
