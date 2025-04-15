@@ -9,16 +9,44 @@
     dest: /opt/
     remote_src: yes
 
-- name: Symlink for kafka path
+- name: Create symbolic link to /opt/kafka
   file:
     src: /opt/kafka_2.13-3.6.1
     dest: /opt/kafka
     state: link
 
-- name: Copy server.properties template
+- name: Ensure Kafka base directory is owned by ec2-user
+  file:
+    path: /opt/kafka
+    state: directory
+    recurse: yes
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
+- name: Clean Kafka logs and data directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+    recurse: yes
+  loop:
+    - /tmp/kafka-logs
+    - /tmp/kraft-combined-logs  # optional if kraft used
+
+- name: Copy server.properties
   template:
     src: server.properties.j2
-    dest: /opt/kafka/config/server.properties
+    dest: "{{ kafka_home }}/config/server.properties"
+    owner: ec2-user
+    group: ec2-user
+    mode: '0644'
 
-- name: Start Kafka broker
-  shell: "/opt/kafka/bin/kafka-server-start.sh -daemon /opt/kafka/config/server.properties"
+- name: Start Kafka broker as ec2-user
+  become: true
+  become_user: ec2-user
+  shell: "{{ kafka_home }}/bin/kafka-server-start.sh -daemon {{ kafka_home }}/config/server.properties"
+  args:
+    executable: /bin/bash

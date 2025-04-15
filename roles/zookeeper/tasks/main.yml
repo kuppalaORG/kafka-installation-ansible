@@ -1,25 +1,48 @@
-- name: Create ZooKeeper directory
+- name: Ensure Kafka base directory is owned by ec2-user
   file:
-    path: /opt/zookeeper
+    path: /opt/kafka
     state: directory
+    recurse: yes
+    owner: ec2-user
+    group: ec2-user
     mode: '0755'
+
+- name: Clean and recreate ZooKeeper data directory
+  file:
+    path: /tmp/zookeeper
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+    recurse: yes
 
 - name: Copy zookeeper.properties
   template:
     src: zookeeper.properties.j2
     dest: /opt/kafka/config/zookeeper.properties
+    owner: ec2-user
+    group: ec2-user
+    mode: '0644'
 
 - name: Create ZooKeeper dataDir (usually needed for `myid`)
   file:
     path: /tmp/zookeeper
     state: directory
+    owner: ec2-user
+    group: ec2-user
     mode: '0755'
 
 - name: Set Zookeeper myid
   copy:
     content: "{{ inventory_hostname | regex_replace('.*-(\\d+)\\..*', '\\1') }}"
     dest: /tmp/zookeeper/myid
+    owner: ec2-user
+    group: ec2-user
+    mode: '0644'
 
-- name: Start ZooKeeper
+- name: Start ZooKeeper as ec2-user
+  become: true
+  become_user: ec2-user
   shell: "{{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties"
-
+  args:
+    executable: /bin/bash

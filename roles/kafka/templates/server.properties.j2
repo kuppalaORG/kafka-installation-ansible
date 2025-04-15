@@ -4,12 +4,12 @@ broker.id={{ groups['all'].index(inventory_hostname) + 1 }}
 # Where Kafka logs go
 log.dirs=/tmp/kafka-logs
 
-# Listeners for clients
+# Listeners for clients (binds to all interfaces)
 listeners=PLAINTEXT://0.0.0.0:9092
 advertised.listeners=PLAINTEXT://{{ ansible_host }}:9092
 
-# Zookeeper connection string
-zookeeper.connect={% for host in groups['all'] %}{{ hostvars[host]['inventory_hostname'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}
+# Zookeeper connection string (comma-separated)
+zookeeper.connect={% for host in groups['all'] %}{{ hostvars[host]['ansible_host'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}
 
 # Replication and ISR
 offsets.topic.replication.factor=3
