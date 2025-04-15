@@ -3,6 +3,7 @@ dataDir=/tmp/zookeeper
 clientPort=2181
 initLimit=5
 syncLimit=2
+4lw.commands.whitelist=ruok,stat,mntr,srvr,dump,conf,envi
 
 {% for host in groups['all'] %}
 server.{{ hostvars[host].broker_id }}={{ hostvars[host].private_ip }}:2888:3888

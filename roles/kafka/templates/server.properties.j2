@@ -17,6 +17,8 @@ transaction.state.log.replication.factor=3
 transaction.state.log.min.isr=2
 default.replication.factor=3
 min.insync.replicas=2
+# Auto create topics when a producer sends to a non-existent topic
+auto.create.topics.enable=true
 
 # Number of partitions per topic
 num.partitions=3
