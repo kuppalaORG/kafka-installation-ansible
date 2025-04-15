@@ -70,6 +70,7 @@
   loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
   when: hostvars[item].private_ip is defined
   delegate_to: localhost
+  become: false
 
 - name: Configure and start Kafka using systemd
   include_tasks: systemd.yml
