@@ -7,7 +7,11 @@ from datetime import datetime
 
 consumer = KafkaConsumer(
     'crypto-price',
-    bootstrap_servers={{ groups['all'] | map('regex_replace', '$', ':9092') | list }},
+    bootstrap_servers = [
+        "kafka-broker-1.codedeploywithbharath.tech:9092",
+        "kafka-broker-2.codedeploywithbharath.tech:9092",
+        "kafka-broker-3.codedeploywithbharath.tech:9092"
+    ],
     value_deserializer=lambda m: json.loads(m.decode('utf-8')),
     auto_offset_reset='latest',
     group_id='crypto-chart'

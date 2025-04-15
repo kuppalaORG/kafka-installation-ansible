@@ -5,7 +5,11 @@ from kafka import KafkaProducer
 import time
 
 producer = KafkaProducer(
-    bootstrap_servers={{ groups['all'] | map('regex_replace', '$', ':9092') | list }},
+    bootstrap_servers = [
+        "kafka-broker-1.codedeploywithbharath.tech:9092",
+        "kafka-broker-2.codedeploywithbharath.tech:9092",
+        "kafka-broker-3.codedeploywithbharath.tech:9092"
+    ],
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
