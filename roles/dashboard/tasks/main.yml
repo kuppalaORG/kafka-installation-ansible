@@ -22,6 +22,13 @@
     group: ec2-user
     mode: '0755'
 
+- name: Install pip3 on Amazon Linux or RHEL
+  become: yes
+  shell: |
+    yum install -y python3-pip || dnf install -y python3-pip
+  args:
+    executable: /bin/bash
+
 - name: Ensure required Python packages are installed
   become: yes
   pip:
