@@ -29,17 +29,19 @@
   args:
     executable: /bin/bash
 
-- name: Install build dependencies for matplotlib
-  yum:
+- name: Install system build dependencies (for matplotlib, streamlit)
+  become: yes
+  package:
     name:
       - gcc
-      - make
+      - python3-devel
       - libpng-devel
       - freetype-devel
-      - python3-devel
+      - make
     state: present
 
 - name: Install Python packages for Kafka dashboard
+  become: yes
   pip:
     name:
       - kafka-python
