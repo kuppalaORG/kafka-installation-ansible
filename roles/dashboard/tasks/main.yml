@@ -36,6 +36,8 @@
       - kafka-python
       - requests
       - matplotlib
+      - streamlit
+      - json
     executable: pip3
 
 # Optional: start producer in background
@@ -43,5 +45,14 @@
   become: true
   become_user: ec2-user
   shell: "nohup python3 /opt/dashboard/producer.py > /opt/dashboard/producer.log 2>&1 &"
+  args:
+    executable: /bin/bash
+
+
+- name: Start Streamlit dashboard on port 8501
+  become: true
+  become_user: ec2-user
+  shell: |
+    nohup streamlit run /opt/dashboard/consumer_chart.py --server.port 8501 --server.address 0.0.0.0 > /opt/dashboard/dashboard.log 2>&1 &
   args:
     executable: /bin/bash

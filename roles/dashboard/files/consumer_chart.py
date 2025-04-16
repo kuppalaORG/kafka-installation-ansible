@@ -1,52 +1,35 @@
-# consumer_chart.py
+# consumer_ui.py
+import streamlit as st
 from kafka import KafkaConsumer
 import json
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from datetime import datetime
+import time
+
+st.title("📊 Live Crypto Price Dashboard")
 
 consumer = KafkaConsumer(
     'crypto-price',
-    bootstrap_servers = [
+    bootstrap_servers=[
         "kafka-broker-1.codedeploywithbharath.tech:9092",
         "kafka-broker-2.codedeploywithbharath.tech:9092",
         "kafka-broker-3.codedeploywithbharath.tech:9092"
     ],
     value_deserializer=lambda m: json.loads(m.decode('utf-8')),
     auto_offset_reset='latest',
-    group_id='crypto-chart'
+    group_id='crypto-ui'
 )
 
-# Live chart data holders
-timestamps = []
-prices = []
+placeholder = st.empty()
 
-fig, ax = plt.subplots()
-line, = ax.plot([], [], lw=2)
+for message in consumer:
+    data = message.value
+    with placeholder.container():
+        st.metric("BTC/USDT Price", data.get("price"))
+        st.write("⏰ Timestamp:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data.get("timestamp"))))
 
-def update(frame):
-    global timestamps, prices
-    for msg in consumer:
-        data = msg.value
-        price = float(data["price"])
-        ts = datetime.fromtimestamp(data["timestamp"])
-        print(f"Received: {price} at {ts}")
+if __name__ == "__main__":
+    import streamlit as st
+    from streamlit.web import cli as stcli
+    import sys
 
-        timestamps.append(ts)
-        prices.append(price)
-
-        # Keep last 20
-        timestamps = timestamps[-20:]
-        prices = prices[-20:]
-
-        line.set_data(timestamps, prices)
-        ax.relim()
-        ax.autoscale_view()
-        break  # Important: so it returns for each frame
-
-    return line,
-
-ani = animation.FuncAnimation(fig, update, blit=False, interval=1000)
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+    sys.argv = ["streamlit", "run", __file__]
+    sys.exit(stcli.main())
