@@ -45,7 +45,6 @@
   pip:
     name:
       - kafka-python
-      - requests
       - streamlit
       - matplotlib
     extra_args: "--prefer-binary --timeout 120"
@@ -56,7 +55,6 @@
   delay: 10
   register: pip_result
   until: pip_result is succeeded
-  ignore_errors: yes
 
 
 # Optional: start producer in background
