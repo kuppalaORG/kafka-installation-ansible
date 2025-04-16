@@ -1,23 +1,5 @@
-- name: Wait for ZooKeeper to be up (self)
-  wait_for:
-    host: "{{ hostvars[inventory_hostname].private_ip }}"
-    port: 2181
-    state: started
-    delay: 5
-    timeout: 60
-
-- name: Wait for ZooKeeper peers to be up
-  wait_for:
-    host: "{{ hostvars[item].private_ip }}"
-    port: 2181
-    state: started
-    timeout: 60
-  loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
-  when: hostvars[item].private_ip is defined
-  delegate_to: localhost
-  become: false
-
-- name: Configure Kafka systemd unit
+- name: Create Kafka systemd service unit file
+  become: true
   template:
     src: kafka.service.j2
     dest: /etc/systemd/system/kafka.service
@@ -25,24 +7,19 @@
     group: root
     mode: '0644'
 
-- name: Reload systemd to pick up Kafka service
+- name: Reload systemd daemon
+  become: true
   systemd:
     daemon_reload: yes
 
-- name: Enable Kafka service on boot
+- name: Enable Kafka to start on boot
+  become: true
   systemd:
     name: kafka
     enabled: yes
 
-- name: Start Kafka broker
+- name: Start Kafka via systemd
+  become: true
   systemd:
     name: kafka
     state: started
-
-- name: Wait for Kafka broker to be up
-  wait_for:
-    host: "{{ hostvars[inventory_hostname].private_ip }}"
-    port: 9092
-    state: started
-    delay: 5
-    timeout: 90

@@ -17,10 +17,8 @@
   delegate_to: "{{ inventory_hostname }}"
   become: false
 
-    
 - name: Configure and start Kafka using systemd
   include_tasks: systemd.yml
-
 
 - name: Wait for Kafka broker to be up
   wait_for:
@@ -29,3 +27,33 @@
     state: started
     delay: 5
     timeout: 90
+
+
+- name: Check number of alive Kafka brokers
+  become: true
+  become_user: ec2-user
+  shell: |
+    {{ kafka_home }}/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 \
+    | grep 'id:' | wc -l
+  register: broker_count
+
+- name: Fail if less than 3 brokers are alive
+  fail:
+    msg: "Expected 3 Kafka brokers to be alive, but found {{ broker_count.stdout }}"
+  when: broker_count.stdout|int < 3
+
+
+- name: Create Kafka topic for producer
+  become: true
+  become_user: ec2-user
+  shell: |
+    {{ kafka_home }}/bin/kafka-topics.sh \
+      --create \
+      --if-not-exists \
+      --bootstrap-server localhost:9092 \
+      --replication-factor 3 \
+      --partitions 3 \
+      --topic crypto-price
+  args:
+    executable: /bin/bash
+

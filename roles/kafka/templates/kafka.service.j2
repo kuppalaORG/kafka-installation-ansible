@@ -6,7 +6,7 @@ Requires=zookeeper.service
 [Service]
 Type=simple
 User=ec2-user
-ExecStart={{ kafka_home }}/bin/kafka-server-start.sh {{ kafka_home }}/config/server.properties
+ExecStart="{{ kafka_home }}/bin/kafka-server-start.sh {{ kafka_home }}/config/server.properties"
 ExecStop=/opt/kafka/bin/kafka-server-stop.sh
 Restart=on-failure
 RestartSec=10
