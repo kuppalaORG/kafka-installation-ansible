@@ -29,8 +29,17 @@
   args:
     executable: /bin/bash
 
-- name: Ensure required Python packages are installed
-  become: yes
+- name: Install system build dependencies
+  yum:
+    name:
+      - gcc
+      - python3-devel
+      - libffi-devel
+      - openssl-devel
+    state: present
+
+
+- name: Install Python packages for dashboard
   pip:
     name:
       - kafka-python
@@ -38,6 +47,11 @@
       - matplotlib
       - streamlit
     executable: pip3
+  retries: 3
+  delay: 10
+  register: pip_result
+  until: pip_result is succeeded
+
 
 # Optional: start producer in background
 - name: Start Kafka producer in background (optional)
