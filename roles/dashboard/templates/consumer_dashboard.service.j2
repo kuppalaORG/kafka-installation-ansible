@@ -1,0 +1,15 @@
+[Unit]
+Description=Streamlit Consumer Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+ExecStart=/usr/local/bin/streamlit run /opt/dashboard/consumer_chart.py --server.port=8501 --server.address=0.0.0.0
+WorkingDirectory=/opt/dashboard
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

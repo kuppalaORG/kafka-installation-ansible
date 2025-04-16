@@ -93,10 +93,36 @@
     name: producer
     state: started
 
-- name: Start Streamlit dashboard on port 8501
+#- name: Start Streamlit dashboard on port 8501
+#  become: true
+#  become_user: ec2-user
+#  shell: |
+#    nohup streamlit run /opt/dashboard/consumer_chart.py --server.port 8501 --server.address 0.0.0.0 > /opt/dashboard/dashboard.log 2>&1 &
+#  args:
+#    executable: /bin/bash
+
+- name: Create consumer systemd unit file
   become: true
-  become_user: ec2-user
-  shell: |
-    nohup streamlit run /opt/dashboard/consumer_chart.py --server.port 8501 --server.address 0.0.0.0 > /opt/dashboard/dashboard.log 2>&1 &
-  args:
-    executable: /bin/bash
+  template:
+    src: consumer_dashboard.service.j2
+    dest: /etc/systemd/system/consumer_dashboard.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd daemon (consumer)
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: Enable consumer dashboard service
+  become: true
+  systemd:
+    name: consumer_dashboard
+    enabled: yes
+
+- name: Start consumer dashboard service
+  become: true
+  systemd:
+    name: consumer_dashboard
+    state: started
