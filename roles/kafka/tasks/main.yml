@@ -10,6 +10,14 @@
     dest: /opt/
     remote_src: yes
 
+- name: Remove existing /opt/kafka directory if it exists
+  file:
+    path: /opt/kafka
+    state: absent
+  when:
+    - ansible_facts['devices'] is defined  
+    - ansible_facts['distribution'] is defined
+    - 
 - name: Create symbolic link to /opt/kafka
   file:
     src: /opt/kafka_2.13-3.6.1
