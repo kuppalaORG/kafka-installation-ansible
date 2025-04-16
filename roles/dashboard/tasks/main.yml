@@ -55,6 +55,7 @@
   delay: 10
   register: pip_result
   until: pip_result is succeeded
+  ignore_errors: yes
 
 
 # Optional: start producer in background
