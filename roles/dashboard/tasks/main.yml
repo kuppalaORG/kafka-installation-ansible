@@ -29,6 +29,16 @@
   args:
     executable: /bin/bash
 
+- name: Add pip global config to ignore rpm-installed packages
+  copy:
+    dest: /etc/pip.conf
+    content: |
+      [global]
+      ignore-installed = true
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Install system build dependencies (for matplotlib, streamlit)
   become: yes
   package:
