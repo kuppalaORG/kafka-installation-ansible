@@ -39,7 +39,7 @@ except Exception as e:
 # Main loop
 while True:
     try:
-        response = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=10)
+        response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin\&vs_currencies=usd", timeout=10)
         if response.status_code == 200:
             data = response.json()
             data['timestamp'] = time.time()
