@@ -4,8 +4,9 @@
 
   roles:
     - java
-    - zookeeper
     - kafka
+    - zookeeper
+    - kafka-start
     - dashboard
   tasks:
     - name: Print inventory_hostname

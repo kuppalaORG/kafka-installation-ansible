@@ -1,3 +1,4 @@
+# kafka/main.yml (Install Phase)
 - name: Download Kafka
   get_url:
     url: https://archive.apache.org/dist/kafka/3.6.1/kafka_2.13-3.6.1.tgz
@@ -53,33 +54,3 @@
     msg: "Private IP not found for {{ inventory_hostname }}"
   when: hostvars[inventory_hostname].private_ip is not defined
 
-- name: Wait for ZooKeeper to be up (self)
-  wait_for:
-    host: "{{ hostvars[inventory_hostname].private_ip }}"
-    port: 2181
-    state: started
-    delay: 5
-    timeout: 60
-
-- name: Wait for ZooKeeper peers to be up
-  wait_for:
-    host: "{{ hostvars[item].private_ip }}"
-    port: 2181
-    state: started
-    timeout: 60
-  loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
-  when: hostvars[item].private_ip is defined
-  delegate_to: "{{ inventory_hostname }}"
-  become: false
-
-- name: Configure and start Kafka using systemd
-  include_tasks: systemd.yml
-
-
-- name: Wait for Kafka broker to be up
-  wait_for:
-    host: "{{ hostvars[inventory_hostname].private_ip }}"
-    port: 9092
-    state: started
-    delay: 5
-    timeout: 90
