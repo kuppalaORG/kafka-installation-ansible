@@ -33,6 +33,7 @@
   yum:
     name:
       - gcc
+      - make
       - python3-devel
       - libffi-devel
       - openssl-devel
@@ -43,16 +44,16 @@
     name:
       - kafka-python
       - requests
-      - matplotlib
       - streamlit
+      - matplotlib
+    extra_args: "--prefer-binary --timeout 120"
     executable: pip3
   environment:
-    PIP_DEFAULT_TIMEOUT: 100
+    PIP_DEFAULT_TIMEOUT: 200
   retries: 3
   delay: 10
   register: pip_result
   until: pip_result is succeeded
-
 
 
 # Optional: start producer in background
