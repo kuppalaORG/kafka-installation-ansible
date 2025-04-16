@@ -38,17 +38,6 @@
       - openssl-devel
     state: present
 
-
-- name: Upgrade pip and install wheel
-  pip:
-    name:
-      - pip
-      - wheel
-    state: latest
-    executable: pip3
-  environment:
-    PIP_DEFAULT_TIMEOUT: 100
-
 - name: Install Python packages for Kafka dashboard
   pip:
     name:
