@@ -67,15 +67,31 @@
   until: pip_result is succeeded
   ignore_errors: yes
 
-
-# Optional: start producer in background
-- name: Start Kafka producer in background (optional)
+- name: Copy Kafka producer systemd unit
   become: true
-  become_user: ec2-user
-  shell: "nohup python3 /opt/dashboard/producer.py > /opt/dashboard/producer.log 2>&1 &"
-  args:
-    executable: /bin/bash
+  template:
+    src: producer.service.j2
+    dest: /etc/systemd/system/producer.service
+    owner: root
+    group: root
+    mode: '0644'
 
+- name: Reload systemd daemon
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: Enable producer service on boot
+  become: true
+  systemd:
+    name: producer
+    enabled: true
+
+- name: Start Kafka producer service
+  become: true
+  systemd:
+    name: producer
+    state: started
 
 - name: Start Streamlit dashboard on port 8501
   become: true

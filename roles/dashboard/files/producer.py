@@ -1,53 +1,60 @@
-# producer.py
-import requests
+# /opt/dashboard/producer.py
 import json
 import time
+import random
+import logging
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
+import sys
 
-KAFKA_BROKERS = [
-    "kafka-broker-1.codedeploywithbharath.tech:9092",
-    "kafka-broker-2.codedeploywithbharath.tech:9092",
-    "kafka-broker-3.codedeploywithbharath.tech:9092"
-]
+logging.basicConfig(
+    filename="/opt/dashboard/producer.log",
+    format="%(asctime)s %(levelname)s: %(message)s",
+    level=logging.INFO
+)
 
-TOPIC_NAME = "crypto-price"
+def get_mock_price():
+    return {
+        "symbol": "BTCUSDT",
+        "price": round(random.uniform(28000, 32000), 2),
+        "timestamp": time.time()
+    }
 
-def log(msg):
-    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
+def send_message(producer, topic, message, retries=5):
+    delay = 1
+    for attempt in range(retries):
+        try:
+            producer.send(topic, value=message)
+            logging.info(f"📤 Sent BTC price: {message}")
+            return True
+        except KafkaError as e:
+            logging.warning(f"⚠️ Kafka send failed: {e} (retrying in {delay}s)")
+            time.sleep(delay)
+            delay *= 2  # Exponential backoff
+    logging.error("❌ Failed to send message after retries")
+    return False
 
-# Create Kafka producer
-try:
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKERS,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
-    log("✅ KafkaProducer initialized")
-except KafkaError as e:
-    log(f"❌ Kafka initialization failed: {e}")
-    raise
-
-# Send a test message to check connectivity
-try:
-    test_msg = {"test": "Kafka connection test", "timestamp": time.time()}
-    producer.send(TOPIC_NAME, value=test_msg)
-    log(f"✅ Test message sent to '{TOPIC_NAME}': {test_msg}")
-except Exception as e:
-    log(f"❌ Failed to send test message: {e}")
-    raise
-
-# Main loop
-while True:
+def main():
     try:
-        response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin\&vs_currencies=usd", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            data['timestamp'] = time.time()
-            producer.send(TOPIC_NAME, value=data)
-            log(f"📤 Sent BTC price: {data}")
-        else:
-            log(f"⚠️ Binance API returned status {response.status_code}")
+        producer = KafkaProducer(
+            bootstrap_servers=[
+                "kafka-broker-1.codedeploywithbharath.tech:9092",
+                "kafka-broker-2.codedeploywithbharath.tech:9092",
+                "kafka-broker-3.codedeploywithbharath.tech:9092"
+            ],
+            value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+            linger_ms=10,
+            retries=0
+        )
+        logging.info("✅ KafkaProducer initialized")
     except Exception as e:
-        log(f"❌ API fetch/send error: {e}")
+        logging.error(f"❌ Failed to initialize KafkaProducer: {e}")
+        sys.exit(1)
 
-    time.sleep(5)
+    while True:
+        mock_data = get_mock_price()
+        send_message(producer, "crypto-price", mock_data)
+        time.sleep(5)
+
+if __name__ == "__main__":
+    main()
