@@ -37,7 +37,6 @@
       - requests
       - matplotlib
       - streamlit
-      - json
     executable: pip3
 
 # Optional: start producer in background
