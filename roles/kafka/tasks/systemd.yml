@@ -17,3 +17,11 @@
   systemd:
     name: kafka
     enabled: yes
+
+- name: Debug rendered kafka.service path
+  command: cat /etc/systemd/system/kafka.service
+  register: kafka_unit
+  become: true
+
+- debug:
+    var: kafka_unit.stdout_lines
