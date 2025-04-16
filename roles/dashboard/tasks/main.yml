@@ -39,7 +39,17 @@
     state: present
 
 
-- name: Install Python packages for dashboard
+- name: Upgrade pip and install wheel
+  pip:
+    name:
+      - pip
+      - wheel
+    state: latest
+    executable: pip3
+  environment:
+    PIP_DEFAULT_TIMEOUT: 100
+
+- name: Install Python packages for Kafka dashboard
   pip:
     name:
       - kafka-python
@@ -47,10 +57,13 @@
       - matplotlib
       - streamlit
     executable: pip3
+  environment:
+    PIP_DEFAULT_TIMEOUT: 100
   retries: 3
   delay: 10
   register: pip_result
   until: pip_result is succeeded
+
 
 
 # Optional: start producer in background
